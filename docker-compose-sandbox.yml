@@ -1,0 +1,14 @@
+name: claritree
+services:
+  server:
+    image: 252121764337.dkr.ecr.eu-north-1.amazonaws.com/claritree/server:<image>
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config:/config
+    networks:
+      - claritree
+
+networks:
+  claritree:
+    driver: bridge

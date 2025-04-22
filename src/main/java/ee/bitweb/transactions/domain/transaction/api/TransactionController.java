@@ -1,0 +1,41 @@
+package ee.bitweb.transactions.domain.transaction.api;
+
+import ee.bitweb.transactions.config.security.DetectorSecurityHelper;
+import ee.bitweb.transactions.domain.transaction.common.TransactionRegistry;
+import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Slf4j
+@Validated
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/transactions")
+public class TransactionController {
+
+    private final TransactionRegistry registry;
+
+    @GetMapping("/unverified")
+    public List<TransactionResponse> get(@RequestParam @Min(1) Integer amount) {
+        log.info("Getting {} unverified transactions for {} ", amount, DetectorSecurityHelper.getName());
+
+        return TransactionMapper.toResponse(
+                registry.get(DetectorSecurityHelper.getId(), DetectorSecurityHelper.getName()).generate(amount)
+        );
+    }
+
+    @PostMapping("/{id}/verify")
+    public void verify(@PathVariable String id) {
+        registry.get(DetectorSecurityHelper.getId(), DetectorSecurityHelper.getName()).verify(id, true);
+    }
+
+    @PostMapping("/{id}/reject")
+    public void reject(@PathVariable String id) {
+        registry.get(DetectorSecurityHelper.getId(), DetectorSecurityHelper.getName()).verify(id, false);
+    }
+
+}
