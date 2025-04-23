@@ -17,6 +17,8 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     restart: always
+    networks:
+      - digit2025
   grafana:
     image: grafana/grafana
     ports:
@@ -24,6 +26,8 @@ services:
     depends_on:
       - prometheus
     restart: always
+    networks:
+      - digit2025
 networks:
   digit2025:
     driver: bridge
