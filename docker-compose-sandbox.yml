@@ -10,5 +10,5 @@ services:
       - digit2025
 
 networks:
-  digit2025s:
+  digit2025:
     driver: bridge
