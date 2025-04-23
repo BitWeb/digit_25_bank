@@ -1,14 +1,14 @@
-name: claritree
+name: digit2025
 services:
   server:
-    image: 252121764337.dkr.ecr.eu-north-1.amazonaws.com/claritree/server:<image>
+    image: 252121764337.dkr.ecr.eu-north-1.amazonaws.com/digit2025/server:<image>
     ports:
       - "8080:8080"
     volumes:
       - ./config:/config
     networks:
-      - claritree
+      - digit2025
 
 networks:
-  claritree:
+  digit2025s:
     driver: bridge
