@@ -27,8 +27,7 @@ services:
       - prometheus
     restart: always
     volumes:
-      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
-      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana:/var/lib/grafana
     networks:
       - digit2025
 networks:
