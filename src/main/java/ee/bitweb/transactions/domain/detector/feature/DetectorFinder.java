@@ -14,6 +14,13 @@ public class DetectorFinder {
 
     private final DetectorRepository repository;
 
+    public Detector findByName(String name) {
+        Detector detector = new Detector();
+        detector.setName(name);
+
+        return repository.findOne(Example.of(detector)).orElse(null);
+    }
+
     public Detector findByToken(String token) {
 
         Detector detector = new Detector();

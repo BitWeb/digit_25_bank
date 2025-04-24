@@ -31,7 +31,7 @@ public class SecurityConfig {
         http.exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
         http.authorizeHttpRequests((requests) ->
                 requests
-                        .requestMatchers("/detectors/register", "/actuator/**")
+                        .requestMatchers("/detectors", "/actuator/**")
                         .permitAll()
                         .anyRequest().authenticated()
         ).addFilterBefore( detectorFilter, UsernamePasswordAuthenticationFilter.class);

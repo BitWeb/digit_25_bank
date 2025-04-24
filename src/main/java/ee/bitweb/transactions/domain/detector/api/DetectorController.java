@@ -19,7 +19,7 @@ public class DetectorController {
 
     private final DetectorCreator creator;
 
-    @PostMapping("/register")
+    @PostMapping
     public RegisterDetectorResponse register(@RequestBody @Valid RegisterDetectorPayload payload) {
         log.info("Registering new detector: {}", payload);
 
