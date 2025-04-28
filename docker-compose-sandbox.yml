@@ -6,6 +6,7 @@ services:
       - "8080:8080"
     volumes:
       - ./config:/config
+    restart: always
     networks:
       - digit2025
   prometheus:
