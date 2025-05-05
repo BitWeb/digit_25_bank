@@ -3,16 +3,14 @@ package ee.bitweb.transactions.domain.transaction.common;
 import ee.bitweb.transactions.domain.account.common.Account;
 import ee.bitweb.transactions.domain.device.common.Device;
 import ee.bitweb.transactions.domain.person.common.Person;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class Transaction {
@@ -29,7 +27,18 @@ public class Transaction {
     private LocalDateTime due;
     private Boolean valid;
 
-    public Boolean isLate() {
-        return LocalDateTime.now().isAfter(due);
+    @Getter
+    @AllArgsConstructor
+    class Summary {
+        private LocalDateTime due;
+        private Boolean valid;
+
+        public Boolean isLate() {
+            return LocalDateTime.now().isAfter(due);
+        }
+    }
+
+    public Summary  toSummary() {
+        return new Summary(due, valid);
     }
 }

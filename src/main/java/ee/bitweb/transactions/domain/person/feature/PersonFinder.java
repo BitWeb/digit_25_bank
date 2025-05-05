@@ -4,9 +4,12 @@ import ee.bitweb.core.exception.persistence.Criteria;
 import ee.bitweb.core.exception.persistence.EntityNotFoundException;
 import ee.bitweb.transactions.domain.person.common.Person;
 import ee.bitweb.transactions.domain.person.common.PersonRepository;
+import ee.bitweb.transactions.domain.person.common.PersonSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +33,16 @@ public class PersonFinder {
                         new Criteria("personCode", personCode)
                 ))
         );
+    }
+
+    public List<Person> getByPersonCodes(List<String> personCodes) {
+
+        return repository.findAll(PersonSpecification.withPersonCodeIn(personCodes));
+    }
+
+    public Page<Person> findAll(int pageNumber, int pageSize) {
+
+        return repository.findAll(PageRequest.of(pageNumber, pageSize));
     }
 
     public List<Person> findAll() {

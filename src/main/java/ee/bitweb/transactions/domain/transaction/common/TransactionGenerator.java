@@ -48,14 +48,13 @@ public class TransactionGenerator {
             transaction.setAmount(BigDecimal.valueOf(random.nextDouble()).setScale(2, RoundingMode.HALF_UP));
             transaction.setValid(TransactionValidator.isValid(transaction));
             transaction.setTimestamp(LocalDateTime.now());
-            transaction.setDue(LocalDateTime.now().plusSeconds(random.nextInt(5)));
+            transaction.setDue(LocalDateTime.now().plusSeconds(1+ random.nextInt(4)));
 
             transactions.add(transaction);
         }
 
         return transactions;
     }
-
 
     public Account generateAccount(Person owner) {
         if (RandomBooleanGenerator.nextBoolean(5)) {

@@ -1,19 +1,27 @@
 package ee.bitweb.transactions.domain.transaction.common;
 
 
+import ee.bitweb.core.exception.persistence.ConflictException;
 import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 public class TransactionContext {
 
-    private ConcurrentHashMap<String, Transaction> transactions = new ConcurrentHashMap<>();
+    public static int LIMIT = 10000;
+    private ConcurrentHashMap<String, Transaction.Summary> transactions = new ConcurrentHashMap<>();
     private final TransactionGenerator generator;
     private final MeterRegistry meterRegistry;
     private Counter hitCounter;
     private Counter missCounter;
     private Counter lateCounter;
+    private Gauge commitmentGauge;
 
 
     public TransactionContext(String name, TransactionGenerator generator, MeterRegistry meterRegistry) {
@@ -22,56 +30,59 @@ public class TransactionContext {
         this.hitCounter = this.meterRegistry.counter("transactions.hit", "detector", name);
         this.missCounter = this.meterRegistry.counter("transactions.miss", "detector", name);
         this.lateCounter = this.meterRegistry.counter("transactions.late", "detector", name);
+        this.commitmentGauge = Gauge.builder("transactions.commitment", transactions, ConcurrentHashMap::size).tags("detector", name).register(this.meterRegistry);
     }
 
     public List<Transaction> generate(int amount) {
-        List<Transaction> transactions = generator.generate(amount);
+        int actualAmount = Math.min(LIMIT - transactions.size(), amount);
+        List<Transaction> transactions = generator.generate(actualAmount);
 
         transactions.forEach(
                 transaction -> {
-                    this.transactions.put(transaction.getId(), transaction);
+                    this.transactions.put(transaction.getId(), transaction.toSummary());
                 }
         );
 
         return transactions;
-
     }
 
     public void verify(String id, Boolean valid) {
         if (transactions.containsKey(id)) {
-            Transaction transaction = transactions.get(id);
-            if (transaction.isLate()) {
-                registerLate(transaction);
+            Transaction.Summary summary = transactions.get(id);
+            if (summary.isLate()) {
+                registerLate(id);
             }
-            if (transaction.getValid() == valid) {
-                registerHit(transaction);
+            if (summary.getValid() == valid) {
+                registerHit(id);
             } else {
-                registerMiss(transaction);
+                registerMiss(id);
             }
         }
     }
 
     public void cleanup() {
 
-        for (Transaction transaction : transactions.values()) {
-            if (transaction.isLate()) {
-                registerLate(transaction);
+        for (Map.Entry<String, Transaction.Summary> element : transactions.entrySet()) {
+            if (element.getValue().isLate()) {
+                registerLate(element.getKey());
             }
         }
     }
 
-    private void registerHit(Transaction transaction) {
-        transactions.remove(transaction.getId());
+    private void registerHit(String id) {
+        transactions.remove(id);
         hitCounter.increment();
     }
 
-    private void registerMiss(Transaction transaction) {
-        transactions.remove(transaction.getId());
+    private void registerMiss(String id) {
+        log.info("MISSED, {}", id);
+        transactions.remove(id);
         missCounter.increment();
+        throw new ConflictException("Transaction verification error", "Transaction", "valid", "notEqual");
     }
 
-    private void registerLate(Transaction transaction) {
-        transactions.remove(transaction.getId());
+    private void registerLate(String id) {
+        transactions.remove(id);
         lateCounter.increment();
     }
 }

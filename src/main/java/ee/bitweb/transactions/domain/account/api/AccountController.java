@@ -1,13 +1,14 @@
 package ee.bitweb.transactions.domain.account.api;
 
 import ee.bitweb.transactions.domain.account.feature.AccountFinder;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @Validated
@@ -23,5 +24,19 @@ public class AccountController {
         log.info("Processing request to get account by number {}", number);
 
         return AccountMapper.toResponse(accountFinder.getByNumber(number));
+    }
+
+    @GetMapping("/by-numbers")
+    public List<AccountResponse> getByNumbers(@RequestParam List<String> numbers) {
+        log.info("Processing request to get accounts by numbers {}", numbers);
+
+        return AccountMapper.toResponse(accountFinder.getByNumbers(numbers));
+    }
+
+    @GetMapping
+    public List<AccountResponse> get(@RequestParam @Min(0) int  pageNumber, @RequestParam @Min(1) @Max(1000) int pageSize) {
+        log.info("Processing request to get accounts");
+
+        return AccountMapper.toResponse(accountFinder.findAll(pageNumber, pageSize));
     }
 }

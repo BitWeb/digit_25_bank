@@ -2,6 +2,7 @@ package ee.bitweb.transactions.domain.transaction.api;
 
 import ee.bitweb.transactions.config.security.DetectorSecurityHelper;
 import ee.bitweb.transactions.domain.transaction.common.TransactionRegistry;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,7 @@ public class TransactionController {
     private final TransactionRegistry registry;
 
     @GetMapping("/unverified")
-    public List<TransactionResponse> get(@RequestParam @Min(1) Integer amount) {
+    public List<TransactionResponse> get(@RequestParam @Min(1) @Max(1000) Integer amount) {
         log.info("Getting {} unverified transactions for {} ", amount, DetectorSecurityHelper.getName());
 
         return TransactionMapper.toResponse(
