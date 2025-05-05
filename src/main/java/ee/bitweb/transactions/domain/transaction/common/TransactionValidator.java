@@ -16,7 +16,7 @@ public class TransactionValidator {
                 validateAccount(transaction.getSenderAccount()) &&
                 validateAccount(transaction.getRecipientAccount()) &&
                 validateOwnership(transaction.getSender(), transaction.getSenderAccount()) &&
-                validateOwnership(transaction.getSender(), transaction.getSenderAccount()) &&
+                validateOwnership(transaction.getRecipient(), transaction.getRecipientAccount()) &&
                 transaction.getAmount().compareTo(transaction.getSenderAccount().getBalance()) <= 0;
     }
 
