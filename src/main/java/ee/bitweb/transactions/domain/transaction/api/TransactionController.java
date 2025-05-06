@@ -22,7 +22,7 @@ public class TransactionController {
     private final TransactionRegistry registry;
 
     @GetMapping("/unverified")
-    public List<TransactionResponse> get(@RequestParam @Min(1) @Max(1000) Integer amount) {
+    public List<TransactionResponse> get(@RequestParam @Min(1) @Max(20000) Integer amount) {
         log.info("Getting {} unverified transactions for {} ", amount, DetectorSecurityHelper.getName());
 
         return TransactionMapper.toResponse(
@@ -42,7 +42,7 @@ public class TransactionController {
 
     @PostMapping("/verify")
     public void verify(@RequestBody List<String> ids) {
-        TransactionContext c =registry.get(DetectorSecurityHelper.getId(), DetectorSecurityHelper.getName());
+        TransactionContext c = registry.get(DetectorSecurityHelper.getId(), DetectorSecurityHelper.getName());
 
         for (String id : ids) {
             c.verify(id, true);

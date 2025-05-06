@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class TransactionContext {
 
-    public static int LIMIT = 10000;
+    public static int LIMIT = 20000;
     private ConcurrentHashMap<String, Transaction.Summary> transactions = new ConcurrentHashMap<>();
     private final TransactionGenerator generator;
     private final MeterRegistry meterRegistry;
@@ -44,13 +44,13 @@ public class TransactionContext {
         return transactions;
     }
 
-    public void verify(String id, Boolean valid) {
+    public void verify(String id, boolean valid) {
         if (transactions.containsKey(id)) {
             Transaction.Summary summary = transactions.get(id);
             if (summary.isLate()) {
                 registerLate(id);
             }
-            if (summary.getValid() == valid) {
+            if (summary.isValid() == valid) {
                 registerHit(id);
             } else {
                 registerMiss(id);
