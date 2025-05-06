@@ -27,8 +27,8 @@ public class DeviceController {
         return DeviceMapper.toResponse(finder.findByMac(mac));
     }
 
-    @GetMapping("/by-macs")
-    public List<DeviceResponse> getByMacs(@RequestParam List<String> macs) {
+    @PostMapping("/by-macs")
+    public List<DeviceResponse> getByMacs(@RequestBody List<String> macs) {
         log.info("Processing request to get device by macs {}", macs);
 
         return DeviceMapper.toResponse(finder.findByMacs(macs));

@@ -24,8 +24,8 @@ public class PersonController {
         return PersonMapper.toResponse(finder.getByPersonCode(personCode));
     }
 
-    @GetMapping("/by-person-codes")
-    public List<PersonResponse> byPersonCodes(@RequestParam List<String> personCodes) {
+    @PostMapping("/by-person-codes")
+    public List<PersonResponse> byPersonCodes(@RequestBody List<String> personCodes) {
         log.info("Processing request to get persons by person codes {}", personCodes);
 
         return PersonMapper.toResponse(finder.getByPersonCodes(personCodes));

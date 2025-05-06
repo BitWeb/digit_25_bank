@@ -26,8 +26,8 @@ public class AccountController {
         return AccountMapper.toResponse(accountFinder.getByNumber(number));
     }
 
-    @GetMapping("/by-numbers")
-    public List<AccountResponse> getByNumbers(@RequestParam List<String> numbers) {
+    @PostMapping("/by-numbers")
+    public List<AccountResponse> get(@RequestBody List<String> numbers) {
         log.info("Processing request to get accounts by numbers {}", numbers);
 
         return AccountMapper.toResponse(accountFinder.getByNumbers(numbers));
