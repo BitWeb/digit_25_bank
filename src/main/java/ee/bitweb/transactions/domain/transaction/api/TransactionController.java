@@ -1,6 +1,7 @@
 package ee.bitweb.transactions.domain.transaction.api;
 
 import ee.bitweb.transactions.config.security.DetectorSecurityHelper;
+import ee.bitweb.transactions.domain.transaction.common.TransactionContext;
 import ee.bitweb.transactions.domain.transaction.common.TransactionRegistry;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -39,4 +40,21 @@ public class TransactionController {
         registry.get(DetectorSecurityHelper.getId(), DetectorSecurityHelper.getName()).verify(id, false);
     }
 
+    @PostMapping("/verify")
+    public void verify(@RequestBody List<String> ids) {
+        TransactionContext c =registry.get(DetectorSecurityHelper.getId(), DetectorSecurityHelper.getName());
+
+        for (String id : ids) {
+            c.verify(id, true);
+        }
+    }
+
+    @PostMapping("/reject")
+    public void reject(@RequestBody List<String> ids) {
+        TransactionContext c =registry.get(DetectorSecurityHelper.getId(), DetectorSecurityHelper.getName());
+
+        for (String id : ids) {
+            c.verify(id, false);
+        }
+    }
 }

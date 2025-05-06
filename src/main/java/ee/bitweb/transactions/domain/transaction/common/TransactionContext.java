@@ -75,10 +75,8 @@ public class TransactionContext {
     }
 
     private void registerMiss(String id) {
-        log.info("MISSED, {}", id);
         transactions.remove(id);
         missCounter.increment();
-        throw new ConflictException("Transaction verification error", "Transaction", "valid", "notEqual");
     }
 
     private void registerLate(String id) {
