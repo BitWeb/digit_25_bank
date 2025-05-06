@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class TransactionContext {
 
-    public static int LIMIT = 20000;
+    public static int LIMIT = 10000;
     private ConcurrentHashMap<String, Transaction.Summary> transactions = new ConcurrentHashMap<>();
     private final TransactionGenerator generator;
     private final MeterRegistry meterRegistry;
