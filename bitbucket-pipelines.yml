@@ -67,14 +67,37 @@ definitions:
           - pipe: atlassian/scp-deploy:1.5.0
             variables:
               USER: ubuntu
-              SERVER: ec2-51-21-219-98.eu-north-1.compute.amazonaws.com
+              SERVER: ec2-16-16-211-31.eu-north-1.compute.amazonaws.com
               REMOTE_PATH: '~/docker-compose-server.yml'
               LOCAL_PATH: 'docker-compose-personal-server.yml'
               EXTRA_ARGS: ['-o', 'StrictHostKeyChecking=no']
           - pipe: atlassian/ssh-run:0.8.0
             variables:
               SSH_USER: ubuntu
-              SERVER: ec2-51-21-219-98.eu-north-1.compute.amazonaws.com
+              SERVER: ec2-16-16-211-31.eu-north-1.compute.amazonaws.com
+              COMMAND: 'docker compose -f docker-compose-server.yml pull && docker compose -f docker-compose-server.yml up -d'
+              EXTRA_ARGS: ['-o', 'StrictHostKeyChecking=no']
+
+    - step: &deployPriit
+        name: "Deploy to Priit EC2"
+        runs-on:
+          - linux
+          - self.hosted
+          - location.bitweb
+          - project.infra
+        script:
+          - sed -i "s/<image>/$BITBUCKET_BUILD_NUMBER/g" ./docker-compose-personal-server.yml
+          - pipe: atlassian/scp-deploy:1.5.0
+            variables:
+              USER: ubuntu
+              SERVER: ec2-13-60-209-104.eu-north-1.compute.amazonaws.com
+              REMOTE_PATH: '~/docker-compose-server.yml'
+              LOCAL_PATH: 'docker-compose-personal-server.yml'
+              EXTRA_ARGS: ['-o', 'StrictHostKeyChecking=no']
+          - pipe: atlassian/ssh-run:0.8.0
+            variables:
+              SSH_USER: ubuntu
+              SERVER: ec2-13-60-209-104.eu-north-1.compute.amazonaws.com
               COMMAND: 'docker compose -f docker-compose-server.yml pull && docker compose -f docker-compose-server.yml up -d'
               EXTRA_ARGS: ['-o', 'StrictHostKeyChecking=no']
 
@@ -84,5 +107,6 @@ pipelines:
       - step: *build
       - step: *pushImageECR
       - parallel:
-        - step: *deploy
+#        - step: *deploy
         - step: *deployRain
+        - step: *deployPriit
