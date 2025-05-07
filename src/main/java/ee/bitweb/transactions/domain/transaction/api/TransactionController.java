@@ -42,7 +42,7 @@ public class TransactionController {
 
     @PostMapping("/verify")
     public void verify(@RequestBody List<String> ids) {
-        TransactionContext c =registry.get(DetectorSecurityHelper.getId(), DetectorSecurityHelper.getName());
+        TransactionContext c = registry.get(DetectorSecurityHelper.getId(), DetectorSecurityHelper.getName());
 
         for (String id : ids) {
             c.verify(id, true);

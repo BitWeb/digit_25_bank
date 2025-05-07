@@ -31,9 +31,9 @@ public class Transaction {
     @AllArgsConstructor
     class Summary {
         private LocalDateTime due;
-        private Boolean valid;
+        private boolean valid;
 
-        public Boolean isLate() {
+        public boolean isLate() {
             return LocalDateTime.now().isAfter(due);
         }
     }

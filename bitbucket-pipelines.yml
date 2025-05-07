@@ -55,9 +55,34 @@ definitions:
               COMMAND: 'docker compose -f docker-compose-server.yml pull && docker compose -f docker-compose-server.yml up -d'
               EXTRA_ARGS: ['-o', 'StrictHostKeyChecking=no']
 
+    - step: &deployRain
+        name: "Deploy to Rain EC2"
+        runs-on:
+          - linux
+          - self.hosted
+          - location.bitweb
+          - project.infra
+        script:
+          - sed -i "s/<image>/$BITBUCKET_BUILD_NUMBER/g" ./docker-compose-personal-server.yml
+          - pipe: atlassian/scp-deploy:1.5.0
+            variables:
+              USER: ubuntu
+              SERVER: ec2-51-20-43-145.eu-north-1.compute.amazonaws.com
+              REMOTE_PATH: '~/docker-compose-server.yml'
+              LOCAL_PATH: 'docker-compose-personal-server.yml'
+              EXTRA_ARGS: ['-o', 'StrictHostKeyChecking=no']
+          - pipe: atlassian/ssh-run:0.8.0
+            variables:
+              SSH_USER: ubuntu
+              SERVER: ec2-51-20-43-145.eu-north-1.compute.amazonaws.com
+              COMMAND: 'docker compose -f docker-compose-server.yml pull && docker compose -f docker-compose-server.yml up -d'
+              EXTRA_ARGS: ['-o', 'StrictHostKeyChecking=no']
+
 pipelines:
   branches:
     main:
       - step: *build
       - step: *pushImageECR
-      - step: *deploy
+      - parallel:
+        - step: *deploy
+        - step: *deployRain
