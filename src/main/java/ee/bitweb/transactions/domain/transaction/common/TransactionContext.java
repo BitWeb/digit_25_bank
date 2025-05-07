@@ -25,13 +25,13 @@ public class TransactionContext {
     public TransactionContext(String name, TransactionGenerator generator, MeterRegistry meterRegistry) {
         this.generator = generator;
         this.meterRegistry = meterRegistry;
-        this.hitCounter = this.meterRegistry.counter("transactions.hit", "detector", name);
-        this.missCounter = this.meterRegistry.counter("transactions.miss", "detector", name);
-        this.lateCounter = this.meterRegistry.counter("transactions.late", "detector", name);
-        this.commitmentGauge = Gauge.builder("transactions.commitment", transactions, ConcurrentHashMap::size).tags("detector", name).register(this.meterRegistry);
+        this.hitCounter = this.meterRegistry.counter("transactions_hit", "detector", name);
+        this.missCounter = this.meterRegistry.counter("transactions_miss", "detector", name);
+        this.lateCounter = this.meterRegistry.counter("transactions_late", "detector", name);
+        this.commitmentGauge = Gauge.builder("transactions_commitment", transactions, ConcurrentHashMap::size).tags("detector", name).register(this.meterRegistry);
     }
 
-    public List<Transaction> generate(int amount) {
+    public synchronized List<Transaction> generate(int amount) {
         int actualAmount = Math.min(LIMIT - transactions.size(), amount);
         List<Transaction> transactions = generator.generate(actualAmount);
 

@@ -11,4 +11,7 @@ public class RegisterDetectorPayload {
 
     @NotBlank
     private String name;
+
+    @NotBlank
+    private String githubUrl;
 }

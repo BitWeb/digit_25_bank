@@ -24,7 +24,7 @@ public class DetectorController {
         log.info("Registering new detector: {}", payload);
 
         return new RegisterDetectorResponse(
-                creator.create(payload.getName()).getToken()
+                creator.create(payload.getName(), payload.getGithubUrl()).getToken()
         );
     }
 }

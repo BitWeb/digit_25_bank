@@ -17,5 +17,5 @@ public class Detector {
     private Long id;
     private String name;
     private String token;
-
+    private String githubUrl;
 }

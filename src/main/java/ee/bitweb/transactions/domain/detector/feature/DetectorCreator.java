@@ -16,12 +16,13 @@ public class DetectorCreator {
     private final DetectorRepository repository;
     private final DetectorFinder finder;
 
-    public Detector create(String name) {
+    public Detector create(String name, String githubUrl) {
         log.info("Creating token {}", name);
 
         assertUnique(name);
         Detector detector = new Detector();
         detector.setName(name);
+        detector.setGithubUrl(githubUrl);
         detector.setToken(RandomStringUtils.random(32, true, true));
 
         return repository.save(detector);

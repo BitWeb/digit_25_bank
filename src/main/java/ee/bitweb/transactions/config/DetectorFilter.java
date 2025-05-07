@@ -4,13 +4,15 @@ package ee.bitweb.transactions.config;
 import ee.bitweb.transactions.config.security.DetectorToken;
 import ee.bitweb.transactions.domain.detector.common.Detector;
 import ee.bitweb.transactions.domain.detector.feature.DetectorFinder;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Component
@@ -25,64 +28,93 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DetectorFilter implements Filter {
 
     private static final int LIMIT = 50;
+    private final ConcurrentHashMap<String, Context> contexts = new ConcurrentHashMap<>();
     private final DetectorFinder finder;
-    private final ConcurrentHashMap<String, Integer> counters = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, Detector> detectors = new ConcurrentHashMap<>();
+    private final MeterRegistry meterRegistry;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException  {
         HttpServletRequest req = (HttpServletRequest) servletRequest;
-
-        String ratelimitedToken = null;
+        Context context = null;
         String tokenHeader = req.getHeader("Authorization");
         if (tokenHeader != null) {
-            Detector detector = getDetector(tokenHeader);
-            if (detector != null) {
+            context = getOrCreate(tokenHeader);
+
+            if (context != null) {
                 SecurityContextHolder.getContext().setAuthentication(
                         new DetectorToken(
-                                detector.getId(),
-                                detector.getName(),
+                                context.getDetector().getId(),
+                                context.getDetector().getName(),
                                 List.of(new SimpleGrantedAuthority("ROLE_USER"))
                         )
                 );
-                ratelimitedToken = tokenHeader;
             }
         }
-        if (ratelimitedToken != null) {
-            if (counters.containsKey(ratelimitedToken) && counters.get(ratelimitedToken) > LIMIT) {
-                HttpServletResponse res = (HttpServletResponse) servletResponse;
-                res.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-                return;
+        try {
+
+            if (context != null) {
+                if (context.isAtLimit()) {
+                    HttpServletResponse res = (HttpServletResponse) servletResponse;
+                    res.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+                    return;
+                }
+                context.bump();
+                System.out.println(context.getCount().get());
             }
-            bumpCounter(ratelimitedToken);
+
+            filterChain.doFilter(servletRequest, servletResponse);
+        } finally {
+            if (context != null) {
+                context.debump();
+            }
         }
 
-        filterChain.doFilter(servletRequest, servletResponse);
 
-        debumpCounter(ratelimitedToken);
     }
 
-    private Detector getDetector(String tokenHeader) {
-        if (detectors.containsKey(tokenHeader)) {
-            return detectors.get(tokenHeader);
+    private Context getOrCreate(String token) {
+        if (contexts.containsKey(token)) {
+
+            return contexts.get(token);
         }
-        Detector detector = finder.findByToken(tokenHeader);
-        detectors.put(tokenHeader, detector);
 
-        return detector;
+        Detector detector = finder.findByToken(token);
+        if (detector == null) {return null;}
+
+        AtomicInteger count = new AtomicInteger(0);
+        Context context =  new Context(
+                count,
+                Gauge.builder(
+                        "detector_concurrent_requests",
+                        count,
+                        AtomicInteger::get
+                ).strongReference(true).tags("detector", detector.getName()).register(meterRegistry),
+                detector
+        );
+        contexts.put(token, context);
+
+        return context;
     }
 
-    private void bumpCounter(String ratelimitedToken) {
-        if (counters.containsKey(ratelimitedToken)) {
-            counters.put(ratelimitedToken, counters.get(ratelimitedToken) + 1);
-        } else {
-            counters.put(ratelimitedToken, 1);
+    @Getter
+    @RequiredArgsConstructor
+    private static class Context {
+
+        private final AtomicInteger count;
+        private final Gauge gauge;
+        private final Detector detector;
+
+        void bump() {
+            count.addAndGet(1);
+
         }
-    }
 
-    private void debumpCounter(String ratelimitedToken) {
-        if (ratelimitedToken != null) {
-            counters.put(ratelimitedToken, counters.get(ratelimitedToken) - 1);
+        void debump() {
+            count.addAndGet(-1);
+        }
+
+        boolean isAtLimit() {
+            return count.get() > LIMIT;
         }
     }
 }
