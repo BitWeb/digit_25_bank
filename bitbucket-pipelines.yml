@@ -130,7 +130,7 @@ pipelines:
       - step: *build
       - step: *pushImageECR
       - parallel:
-#        - step: *deploy
+        - step: *deploy
         - step: *deployRain
         - step: *deployPriit
         - step: *deployErich
