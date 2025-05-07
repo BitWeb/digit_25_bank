@@ -1,5 +1,6 @@
 package ee.bitweb.transactions.domain.transaction.api;
 
+import ee.bitweb.transactions.common.RandomGenerator;
 import ee.bitweb.transactions.config.security.DetectorSecurityHelper;
 import ee.bitweb.transactions.domain.transaction.common.TransactionContext;
 import ee.bitweb.transactions.domain.transaction.common.TransactionRegistry;
@@ -31,13 +32,16 @@ public class TransactionController {
     }
 
     @PostMapping("/{id}/verify")
-    public void verify(@PathVariable String id) {
+    public void verify(@PathVariable String id) throws InterruptedException {
+
         registry.get(DetectorSecurityHelper.getId(), DetectorSecurityHelper.getName()).verify(id, true);
+        Thread.sleep(RandomGenerator.nextLong(50, 100));
     }
 
     @PostMapping("/{id}/reject")
-    public void reject(@PathVariable String id) {
+    public void reject(@PathVariable String id) throws InterruptedException {
         registry.get(DetectorSecurityHelper.getId(), DetectorSecurityHelper.getName()).verify(id, false);
+        Thread.sleep(RandomGenerator.nextLong(50, 100));
     }
 
     @PostMapping("/verify")

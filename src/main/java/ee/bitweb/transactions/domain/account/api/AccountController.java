@@ -1,5 +1,6 @@
 package ee.bitweb.transactions.domain.account.api;
 
+import ee.bitweb.transactions.common.RandomGenerator;
 import ee.bitweb.transactions.domain.account.feature.AccountFinder;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -9,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Random;
 
 @Slf4j
 @Validated
@@ -20,8 +22,10 @@ public class AccountController {
     private final AccountFinder accountFinder;
 
     @GetMapping("/{number}")
-    public AccountResponse get(@PathVariable String number) {
+    public AccountResponse get(@PathVariable String number) throws InterruptedException {
         log.info("Processing request to get account by number {}", number);
+
+        Thread.sleep(RandomGenerator.nextLong(50, 100));
 
         return AccountMapper.toResponse(accountFinder.getByNumber(number));
     }

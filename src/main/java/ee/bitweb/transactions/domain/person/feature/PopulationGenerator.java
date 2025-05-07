@@ -1,9 +1,8 @@
 package ee.bitweb.transactions.domain.person.feature;
 
 import ee.bitweb.transactions.common.PersonCodeGenerator;
-import ee.bitweb.transactions.common.RandomBooleanGenerator;
+import ee.bitweb.transactions.common.RandomGenerator;
 import ee.bitweb.transactions.domain.person.common.Person;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -36,9 +35,9 @@ public class PopulationGenerator {
             for (String line : lines) {
                 Person person = convert(line);
                 person.setPersonCode(generateAndStore(personCodes));
-                person.setWarrantIssued(RandomBooleanGenerator.nextBoolean(5));
-                person.setBlacklisted(RandomBooleanGenerator.nextBoolean(5));
-                person.setHasContract(RandomBooleanGenerator.nextBoolean(95));
+                person.setWarrantIssued(RandomGenerator.nextBoolean(5));
+                person.setBlacklisted(RandomGenerator.nextBoolean(5));
+                person.setHasContract(RandomGenerator.nextBoolean(95));
 
                 persons.add(person);
             }

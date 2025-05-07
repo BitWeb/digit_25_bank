@@ -1,6 +1,6 @@
 package ee.bitweb.transactions.domain.device.feature;
 
-import ee.bitweb.transactions.common.RandomBooleanGenerator;
+import ee.bitweb.transactions.common.RandomGenerator;
 import ee.bitweb.transactions.domain.device.common.Device;
 import ee.bitweb.transactions.domain.person.common.PersonRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +37,7 @@ public class DeviceGenerator {
     private Device create() {
         Device device = new Device();
 
-        device.setBlacklisted(RandomBooleanGenerator.nextBoolean(10));
+        device.setBlacklisted(RandomGenerator.nextBoolean(10));
         device.setMac(UUID.randomUUID().toString());
 
         return device;

@@ -1,5 +1,6 @@
 package ee.bitweb.transactions.domain.device.api;
 
+import ee.bitweb.transactions.common.RandomGenerator;
 import ee.bitweb.transactions.domain.device.common.Device;
 import ee.bitweb.transactions.domain.device.feature.DeviceFinder;
 import jakarta.validation.constraints.Max;
@@ -21,8 +22,9 @@ public class DeviceController {
     private final DeviceFinder finder;
 
     @GetMapping("/{mac}")
-    public DeviceResponse get(@PathVariable("mac") String mac) {
+    public DeviceResponse get(@PathVariable("mac") String mac) throws InterruptedException {
         log.info("Processing request to get device by mac {}", mac);
+        Thread.sleep(RandomGenerator.nextLong(50, 100));
 
         return DeviceMapper.toResponse(finder.findByMac(mac));
     }

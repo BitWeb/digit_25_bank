@@ -1,9 +1,8 @@
 package ee.bitweb.transactions.domain.account.feature;
 
-import ee.bitweb.transactions.common.RandomBooleanGenerator;
+import ee.bitweb.transactions.common.RandomGenerator;
 import ee.bitweb.transactions.domain.account.common.Account;
 import ee.bitweb.transactions.domain.person.common.Person;
-import ee.bitweb.transactions.domain.person.common.PersonCache;
 import ee.bitweb.transactions.domain.person.common.PersonRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +33,7 @@ public class AccountGenerator {
             for (int i = 0; i < random.nextInt(2) + 1; i++) {
                 Account account = new Account();
                 account.setOwner(person.getPersonCode());
-                account.setClosed(RandomBooleanGenerator.nextBoolean(10));
+                account.setClosed(RandomGenerator.nextBoolean(10));
                 account.setBalance(BigDecimal.valueOf(random.nextInt(100000)).setScale(2, RoundingMode.HALF_UP));
                 account.setNumber(UUID.randomUUID().toString());
 

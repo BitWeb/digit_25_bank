@@ -1,5 +1,6 @@
 package ee.bitweb.transactions.domain.person.api;
 
+import ee.bitweb.transactions.common.RandomGenerator;
 import ee.bitweb.transactions.domain.person.feature.PersonFinder;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -18,8 +19,9 @@ public class PersonController {
     private final PersonFinder finder;
 
     @GetMapping("/{personCode}")
-    public PersonResponse get(@PathVariable("personCode") String personCode) {
+    public PersonResponse get(@PathVariable("personCode") String personCode) throws InterruptedException {
         log.info("Processing request to get person with person code {}", personCode);
+        Thread.sleep(RandomGenerator.nextLong(50, 100));
 
         return PersonMapper.toResponse(finder.getByPersonCode(personCode));
     }

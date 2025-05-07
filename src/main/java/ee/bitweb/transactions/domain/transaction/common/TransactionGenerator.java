@@ -1,6 +1,6 @@
 package ee.bitweb.transactions.domain.transaction.common;
 
-import ee.bitweb.transactions.common.RandomBooleanGenerator;
+import ee.bitweb.transactions.common.RandomGenerator;
 import ee.bitweb.transactions.domain.account.common.Account;
 import ee.bitweb.transactions.domain.account.common.AccountCache;
 import ee.bitweb.transactions.domain.device.common.Device;
@@ -57,7 +57,7 @@ public class TransactionGenerator {
     }
 
     public Account generateAccount(Person owner) {
-        if (RandomBooleanGenerator.nextBoolean(5)) {
+        if (RandomGenerator.nextBoolean(5)) {
             return accountCache.getRandom();
         } else {
             return accountCache.getRandomForPerson(owner.getPersonCode());
