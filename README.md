@@ -7,6 +7,6 @@
 
 ## Service list
 
-* [Grafana](http://localhost:3000)
+* [Grafana](http://localhost:3000) (User: admin, Password: admin)
 * [Service base-url](http://localhost:8080) 
 * [Prometheus](http//localhost:9090)
