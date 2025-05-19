@@ -58,14 +58,13 @@ public class DetectorFilter implements Filter {
                     res.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
                     return;
                 }
-                context.bump();
-                System.out.println(context.getCount().get());
+                context.bump(1);
             }
 
             filterChain.doFilter(servletRequest, servletResponse);
         } finally {
             if (context != null) {
-                context.debump();
+                context.bump(-1);
             }
         }
 
@@ -104,13 +103,9 @@ public class DetectorFilter implements Filter {
         private final Gauge gauge;
         private final Detector detector;
 
-        void bump() {
-            count.addAndGet(1);
+        synchronized void bump(int value) {
+            count.addAndGet(value);
 
-        }
-
-        void debump() {
-            count.addAndGet(-1);
         }
 
         boolean isAtLimit() {
