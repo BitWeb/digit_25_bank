@@ -4,6 +4,7 @@ services:
     container_name: digit2025_postgres
     environment:
       - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_DB=bank
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=AXfXj77DSF8e7i2a
     ports:
